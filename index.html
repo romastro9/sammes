@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ខ្លាស៊ីគោ - Kla Sikor IT Zone</title>
+    <title>ខ្លាស៊ីគោ Premium - IT Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #e94560;
-            --secondary: #16213e;
-            --accent: #f1c40f;
-            --bg: #1a1a2e;
+            --gold: #f1c40f;
+            --dark: #0f172a;
+            --card-bg: #1e293b;
+            --red: #e11d48;
+            --green: #2ecc71;
         }
 
         body {
             font-family: 'Kantumruy Pro', sans-serif;
-            background-color: var(--bg);
+            background: radial-gradient(circle, #1e293b 0%, #0f172a 100%);
             color: white;
             margin: 0;
             display: flex;
@@ -24,169 +25,201 @@
             min-height: 100vh;
         }
 
-        /* Header & Balance */
-        .header {
+        /* Top Bar */
+        .top-bar {
             width: 100%;
-            padding: 20px;
-            background: var(--secondary);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            padding: 15px;
+            background: rgba(15, 23, 42, 0.9);
+            text-align: center;
+            border-bottom: 3px solid var(--gold);
         }
 
-        .balance-box {
-            background: #0f3460;
-            border: 2px solid var(--accent);
-            padding: 10px 20px;
-            border-radius: 50px;
-            display: inline-block;
+        .balance-display {
+            font-size: 1.5rem;
             font-weight: bold;
-            font-size: 1.2rem;
+            color: var(--gold);
         }
 
-        #balance { color: var(--accent); }
+        /* Result Pop-up Text */
+        #statusPopup {
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 100;
+            padding: 20px 40px;
+            border-radius: 15px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-align: center;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
 
-        /* Dice Result Area */
-        .result-container {
+        #statusPopup.show { transform: translate(-50%, -50%) scale(1); }
+
+        .win-theme { background: var(--green); color: white; border: 4px solid #fff; }
+        .lose-theme { background: var(--red); color: white; border: 4px solid #fff; }
+
+        /* Game Scene */
+        .game-scene {
+            position: relative;
+            margin: 50px 0;
+            width: 300px;
+            height: 180px;
             display: flex;
-            gap: 15px;
-            margin: 30px 0;
-            padding: 20px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 20px;
+            justify-content: center;
+        }
+
+        .bowl {
+            position: absolute;
+            top: -30px;
+            width: 200px;
+            height: 150px;
+            background: linear-gradient(135deg, #fbbf24 0%, #b45309 100%);
+            border-radius: 100px 100px 10px 10px;
+            z-index: 20;
+            cursor: pointer;
+            transition: 0.6s ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 4px solid var(--gold);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+        }
+
+        .bowl.open { transform: translateY(-160px) rotate(-15deg); opacity: 0.9; }
+
+        .dice-table {
+            position: absolute;
+            bottom: -10px;
+            width: 240px;
+            height: 30px;
+            background: #451a03;
+            border-radius: 50%;
+            z-index: 5;
+            border: 4px solid #92400e;
+        }
+
+        .dice-container {
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+            padding-top: 40px;
         }
 
         .dice {
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
             background: white;
-            border-radius: 15px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            overflow: hidden;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.2);
         }
 
-        .dice img { width: 85%; height: 85%; object-fit: contain; }
+        .dice img { width: 85%; height: 85%; }
 
-        /* Game Board */
-        .game-board {
+        /* Shaking Animation */
+        .shaking { animation: shake 0.1s infinite; }
+        @keyframes shake {
+            0% { transform: translate(3px, 3px); }
+            50% { transform: translate(-3px, -3px); }
+            100% { transform: translate(3px, -3px); }
+        }
+
+        /* Board */
+        .board {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            width: 95%;
-            max-width: 450px;
-            padding: 10px;
+            gap: 15px;
+            width: 90%;
+            max-width: 480px;
+            margin-bottom: 100px;
         }
 
-        .animal-card {
-            background: white;
+        .card {
+            background: var(--card-bg);
             border-radius: 15px;
             padding: 10px;
+            text-align: center;
+            border: 3px solid transparent;
             cursor: pointer;
-            transition: transform 0.2s, border 0.2s;
-            border: 4px solid transparent;
             position: relative;
         }
 
-        .animal-card img { width: 100%; height: auto; border-radius: 10px; }
+        .card.selected { border-color: var(--gold); background: #334155; }
 
-        .animal-card.selected {
-            border-color: #27ae60;
-            transform: scale(0.95);
-        }
+        .card img { width: 100%; border-radius: 10px; background: white; }
+
+        .card-name { margin-top: 5px; font-weight: bold; color: var(--gold); font-size: 0.9rem; }
 
         .bet-badge {
             position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #27ae60;
-            color: white;
+            top: -8px;
+            right: -8px;
+            background: var(--red);
             padding: 2px 8px;
             border-radius: 10px;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             display: none;
+            border: 2px solid white;
         }
 
-        /* Controls */
+        /* Footer Controls */
         .footer-controls {
-            margin-top: auto;
-            padding: 20px;
+            position: fixed;
+            bottom: 0;
             width: 100%;
-            background: var(--secondary);
+            background: var(--dark);
+            padding: 15px;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             gap: 15px;
-            align-items: center;
+            border-top: 2px solid var(--gold);
         }
 
-        .bet-input-group {
-            display: flex;
-            gap: 10px;
-        }
+        input { padding: 10px; border-radius: 8px; border: none; width: 100px; font-size: 1rem; text-align: center; }
 
-        input[type="number"] {
-            padding: 12px;
-            border-radius: 8px;
+        .btn-roll {
+            background: var(--gold);
+            color: #000;
             border: none;
-            width: 120px;
-            font-family: inherit;
-            text-align: center;
-        }
-
-        .btn {
-            padding: 12px 30px;
-            border: none;
+            padding: 10px 40px;
             border-radius: 8px;
             font-weight: bold;
+            font-size: 1.1rem;
             cursor: pointer;
-            font-family: inherit;
-            transition: 0.2s;
         }
 
-        .btn-roll { background: var(--primary); color: white; width: 200px; font-size: 1.1rem; }
-        .btn-reset { background: #555; color: white; font-size: 0.8rem; }
-        .btn:disabled { background: #444; opacity: 0.7; }
-
-        /* Animations */
-        .shaking { animation: shake 0.15s infinite; }
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            50% { transform: translate(-1px, -2px) rotate(-1deg); }
-            100% { transform: translate(1px, 2px) rotate(1deg); }
-        }
+        .btn-roll:disabled { background: #555; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="balance-box">
-            💰 <span id="balance">100,000</span> ៛
-        </div>
+    <div id="statusPopup"></div>
+
+    <div class="top-bar">
+        <div class="balance-display">💰 <span id="balanceDisplay">100,000</span> ៛</div>
     </div>
 
-    <div class="result-container">
-        <div class="dice" id="dice1">🎲</div>
-        <div class="dice" id="dice2">🎲</div>
-        <div class="dice" id="dice3">🎲</div>
+    <div class="game-scene">
+        <div class="dice-table"></div>
+        <div class="dice-container">
+            <div class="dice" id="d1">?</div>
+            <div class="dice" id="d2">?</div>
+            <div class="dice" id="d3">?</div>
+        </div>
+        <div class="bowl" id="bowl"></div>
     </div>
 
-    <div class="game-board" id="board">
-        </div>
+    <div class="board" id="gameBoard"></div>
 
     <div class="footer-controls">
-        <div class="bet-input-group">
-            <input type="number" id="betAmount" value="5000" min="500" step="500">
-            <button class="btn btn-reset" onclick="resetGame()">លាងលុយ</button>
-        </div>
-        <button class="btn btn-roll" onclick="roll()" id="rollBtn">ក្រឡុក (Roll)</button>
+        <input type="number" id="betInput" value="5000" step="1000">
+        <button class="btn-roll" onclick="playGame()" id="rollBtn">ក្រឡុក</button>
     </div>
-
-    <audio id="rollSound" src="https://www.soundjay.com/misc/sounds/dice-roll-1.mp3"></audio>
-    <audio id="winSound" src="https://www.soundjay.com/human/sounds/applause-01.mp3"></audio>
 
     <script>
         const animals = [
@@ -201,46 +234,36 @@
         let balance = 100000;
         let bets = {};
 
-        const board = document.getElementById('board');
-        const balanceDisplay = document.getElementById('balance');
-
-        // Initialize Board
-        function initBoard() {
-            board.innerHTML = '';
+        function init() {
+            const board = document.getElementById('gameBoard');
             animals.forEach(a => {
-                const card = document.createElement('div');
-                card.className = 'animal-card';
-                card.id = `card-${a.id}`;
-                card.innerHTML = `
-                    <div class="bet-badge" id="badge-${a.id}">0</div>
-                    <img src="${a.img}" alt="${a.name}" onerror="this.src='https://via.placeholder.com/150?text=${a.name}'">
+                board.innerHTML += `
+                    <div class="card" id="card-${a.id}" onclick="placeBet('${a.id}')">
+                        <div class="bet-badge" id="badge-${a.id}">0</div>
+                        <img src="${a.img}" onerror="this.src='https://via.placeholder.com/150?text=${a.name}'">
+                        <div class="card-name">${a.name}</div>
+                    </div>
                 `;
-                card.onclick = () => placeBet(a.id);
-                board.appendChild(card);
             });
         }
 
-        function placeBet(animalId) {
-            const amount = parseInt(document.getElementById('betAmount').value);
-            if (balance < amount) {
-                alert("លុយមិនគ្រប់គ្រាន់!");
-                return;
-            }
-            if (amount <= 0) return;
-
-            balance -= amount;
-            bets[animalId] = (bets[animalId] || 0) + amount;
+        function placeBet(id) {
+            const amt = parseInt(document.getElementById('betInput').value);
+            if (balance < amt) return showPopup("លុយមិនគ្រាន់ទេលោកបង!", "lose-theme");
+            
+            balance -= amt;
+            bets[id] = (bets[id] || 0) + amt;
             updateUI();
         }
 
         function updateUI() {
-            balanceDisplay.textContent = balance.toLocaleString();
+            document.getElementById('balanceDisplay').textContent = balance.toLocaleString();
             animals.forEach(a => {
                 const badge = document.getElementById(`badge-${a.id}`);
                 const card = document.getElementById(`card-${a.id}`);
-                if (bets[a.id] > 0) {
+                if (bets[a.id]) {
                     badge.style.display = 'block';
-                    badge.textContent = (bets[a.id]/1000) + "K";
+                    badge.textContent = bets[a.id].toLocaleString() + "៛";
                     card.classList.add('selected');
                 } else {
                     badge.style.display = 'none';
@@ -249,69 +272,58 @@
             });
         }
 
-        function roll() {
-            if (Object.keys(bets).length === 0) {
-                alert("សូមជ្រើសរើសរូបសត្វដើម្បីភ្នាល់!");
-                return;
-            }
-
-            const btn = document.getElementById('rollBtn');
-            const rollSnd = document.getElementById('rollSound');
-            const winSnd = document.getElementById('winSound');
-            const diceEls = [document.getElementById('dice1'), document.getElementById('dice2'), document.getElementById('dice3')];
-
-            btn.disabled = true;
-            rollSnd.play().catch(e => {}); // Play sound
-
-            diceEls.forEach(d => {
-                d.classList.add('shaking');
-                d.innerHTML = "🎲";
-            });
-
-            setTimeout(() => {
-                let results = [];
-                diceEls.forEach(d => {
-                    const res = animals[Math.floor(Math.random() * animals.length)];
-                    results.push(res.id);
-                    d.innerHTML = `<img src="${res.img}" onerror="this.parentElement.innerHTML='${res.name}'">`;
-                    d.classList.remove('shaking');
-                });
-
-                calculateResult(results, winSnd);
-                btn.disabled = false;
-            }, 1200);
+        function showPopup(text, theme) {
+            const popup = document.getElementById('statusPopup');
+            popup.textContent = text;
+            popup.className = theme + ' show';
+            setTimeout(() => { popup.classList.remove('show'); }, 2500);
         }
 
-        function calculateResult(results, winSnd) {
-            let winTotal = 0;
-            for (let id in bets) {
-                const matches = results.filter(r => r === id).length;
-                if (matches > 0) {
-                    // Win: Bet amount + (Bet amount * matches)
-                    winTotal += bets[id] + (bets[id] * matches);
-                }
+        function playGame() {
+            if (Object.keys(bets).length === 0) return alert("សូមចាក់សិន!");
+            
+            const bowl = document.getElementById('bowl');
+            const btn = document.getElementById('rollBtn');
+            
+            btn.disabled = true;
+            bowl.classList.remove('open');
+            
+            setTimeout(() => {
+                bowl.classList.add('shaking');
+                setTimeout(() => {
+                    bowl.classList.remove('shaking');
+                    let results = [];
+                    for(let i=1; i<=3; i++) {
+                        const res = animals[Math.floor(Math.random() * animals.length)];
+                        results.push(res.id);
+                        document.getElementById('d'+i).innerHTML = `<img src="${res.img}" onerror="this.parentElement.innerHTML='${res.name}'">`;
+                    }
+                    bowl.classList.add('open');
+                    finishGame(results);
+                    btn.disabled = false;
+                }, 1200);
+            }, 200);
+        }
+
+        function finishGame(results) {
+            let winAmount = 0;
+            for(let id in bets) {
+                const count = results.filter(r => r === id).length;
+                if (count > 0) winAmount += bets[id] + (bets[id] * count);
             }
 
-            if (winTotal > 0) {
-                winSnd.play().catch(e => {});
-                setTimeout(() => alert(`អបអរសាទរ! អ្នកឈ្នះ: ${winTotal.toLocaleString()} ៛`), 100);
+            if (winAmount > 0) {
+                balance += winAmount;
+                showPopup("ចាក់ទៀតអូន ចាក់ទៀត (ឈ្នះ " + winAmount.toLocaleString() + "៛)", "win-theme");
+            } else {
+                showPopup("អញថាហើយចាកុំឲ្យចាក់ (ចាញ់អស់ហើយ)", "lose-theme");
             }
-
-            balance += winTotal;
+            
             bets = {};
             updateUI();
         }
 
-        function resetGame() {
-            if (confirm("តើអ្នកចង់លាងលុយ ហើយចាប់ផ្ដើមថ្មីជាមួយ ១០០,០០០ ៛ មែនទេ?")) {
-                balance = 100000;
-                bets = {};
-                updateUI();
-            }
-        }
-
-        initBoard();
-        updateUI();
+        init();
     </script>
 </body>
 </html>
