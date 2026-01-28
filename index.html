@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ហតើម៉េស - Custom Player</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap');
+
+        :root {
+            --bg: #1e1e2e;
+            --panel: #252540;
+            --accent: #89b4fa;
+            --wall: #45475a;
+            --path: #313244;
+            --gold: #f9e2af;
+            --green: #a6e3a1;
+            --red: #f38ba8;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Kantumruy Pro', sans-serif;
+            margin: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            height: 100vh; overflow: hidden; user-select: none; touch-action: none;
+        }
+
+        /* --- MENU & UI --- */
+        #menu-screen, #win-modal, #lose-modal {
+            background: var(--panel); padding: 25px; border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center;
+            border: 2px solid var(--accent); width: 90%; max-width: 400px;
+            position: absolute; z-index: 100;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        h1 { color: var(--accent); margin: 0 0 10px 0; font-size: 1.8rem; }
+
+        /* UPLOAD SECTION */
+        .upload-area {
+            margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 10px;
+            border-radius: 10px; width: 100%; box-sizing: border-box;
+        }
+        .upload-btn {
+            background: #fab387; color: #1e1e2e; padding: 8px 15px;
+            border-radius: 8px; cursor: pointer; font-weight: bold;
+            display: inline-block; margin-top: 5px; font-size: 0.9rem;
+        }
+        #preview-img {
+            width: 50px; height: 50px; border-radius: 50%; object-fit: cover;
+            border: 2px solid white; margin-top: 10px; display: none;
+            box-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+
+        /* LEVEL GRID */
+        .level-grid {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 10px 0;
+            width: 100%; max-height: 150px; overflow-y: auto;
+        }
+        .level-btn {
+            aspect-ratio: 1; border: none; border-radius: 8px;
+            font-family: 'Kantumruy Pro', sans-serif; font-weight: bold;
+            background: #313244; color: #a6adc8; cursor: not-allowed;
+        }
+        .level-btn.unlocked { background: var(--green); color: #1e1e2e; cursor: pointer; }
+
+        .btn-main {
+            background: var(--accent); color: #1e1e2e; border: none; padding: 10px 25px;
+            font-family: 'Kantumruy Pro', sans-serif; font-weight: bold; font-size: 1rem;
+            border-radius: 50px; cursor: pointer; margin-top: 15px;
+        }
+
+        /* --- GAME BOARD --- */
+        #game-screen { display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
+
+        .hud-bar {
+            display: flex; justify-content: space-between; width: 95%; max-width: 500px;
+            background: var(--panel); padding: 10px; border-radius: 12px; margin-bottom: 10px;
+        }
+        .hearts { color: var(--red); letter-spacing: 2px; }
+
+        #game-board {
+            position: relative; background-color: var(--path);
+            border: 4px solid var(--wall); border-radius: 10px; overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .cell { position: absolute; width: 25px; height: 25px; }
+        .wall-block { background-color: var(--wall); border-radius: 4px; }
+
+        /* PLAYER STYLES */
+        #player {
+            position: absolute; width: 22px; height: 22px;
+            background-color: var(--accent); /* Default Color */
+            background-size: cover; background-position: center;
+            border-radius: 50%; z-index: 20;
+            transition: all 0.1s linear; box-shadow: 0 0 10px rgba(255,255,255,0.5);
+            border: 1px solid white;
+        }
+        .damaged { opacity: 0.5; animation: blink 0.2s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .enemy {
+            position: absolute; width: 22px; height: 22px;
+            background: var(--red); border-radius: 50%; z-index: 15;
+            display: flex; justify-content: center; align-items: center; font-size: 14px;
+        }
+
+        .star {
+            position: absolute; width: 18px; height: 18px;
+            background: var(--gold); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            z-index: 10; animation: spin 4s infinite linear;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        #goal {
+            position: absolute; width: 25px; height: 25px; background: #555;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 14px; border-radius: 4px;
+        }
+        #goal.active { background: var(--green); animation: bounce 0.6s infinite alternate; }
+        @keyframes bounce { from { transform: scale(1); } to { transform: scale(1.1); } }
+
+        /* CONTROLS */
+        #mobile-controls {
+            display: grid; grid-template-columns: 60px 60px 60px; gap: 10px; margin-top: 15px;
+        }
+        .pad-btn {
+            width: 60px; height: 60px; background: rgba(255,255,255,0.1);
+            border-radius: 50%; font-size: 24px; display: flex; 
+            justify-content: center; align-items: center; cursor: pointer;
+            user-select: none;
+        }
+        .pad-btn:active { background: var(--accent); }
+
+    </style>
+</head>
+<body>
+
+    <div id="menu-screen">
+        <h1>ហតើម៉េស (Custom)</h1>
+        
+        <div class="upload-area">
+            <div style="font-size: 0.9rem; color: #bac2de;">ដាក់រូបភាពតួអង្គ (Upload Photo)</div>
+            <label for="file-upload" class="upload-btn">ជ្រើសរើសរូប 📁</label>
+            <input type="file" id="file-upload" accept="image/*" style="display: none;">
+            <br>
+            <img id="preview-img" alt="Character Preview">
+        </div>
+
+        <p style="font-size: 0.9rem;">ប្រមូល ⭐ ៣ ដើម្បីឈ្នះ!</p>
+        <div class="level-grid" id="level-grid"></div>
+        <p style="font-size: 0.8rem; color: #a6adc8;">❤️ ៥ ជីវិត | 👻 ខ្មោចដើរយឺត</p>
+    </div>
+
+    <div id="game-screen">
+        <div class="hud-bar">
+            <div>Level <span id="level-num">1</span></div>
+            <div class="hearts" id="hp-display">❤️❤️❤️❤️❤️</div>
+            <div style="color: var(--gold);">⭐ <span id="star-count">0</span>/3</div>
+        </div>
+
+        <div id="game-board"></div>
+
+        <div id="mobile-controls">
+            <div></div><div class="pad-btn" id="btn-up">⬆️</div><div></div>
+            <div class="pad-btn" id="btn-left">⬅️</div><div class="pad-btn" id="btn-down">⬇️</div><div class="pad-btn" id="btn-right">➡️</div>
+        </div>
+    </div>
+
+    <div id="win-modal" style="display: none;">
+        <h1 style="color: var(--green);">ជ័យជំនះ! 🎉</h1>
+        <button class="btn-main" onclick="nextLevel()">វគ្គបន្ត ▶</button>
+    </div>
+
+    <div id="lose-modal" style="display: none;">
+        <h1 style="color: var(--red);">បរាជ័យ 😢</h1>
+        <button class="btn-main" onclick="retryLevel()">លេងម្តងទៀត ↺</button>
+        <br><br>
+        <button class="btn-main" style="background: #45475a;" onclick="goToMenu()">ចេញ</button>
+    </div>
+
+    <script>
+        const TILE = 25;
+        let ROWS = 12, COLS = 12;
+        const TOTAL_LEVELS = 20;
+
+        let maxUnlocked = parseInt(localStorage.getItem('hatermes_easy_max')) || 1;
+        let currentLevel = 1;
+        let map = [], enemies = [];
+        let playerPos = { r: 1, c: 1 };
+        let hp = 5, stars = 0, isInvincible = false;
+        let gameTimer;
+        let gameTick = 0;
+        
+        // CUSTOM IMAGE LOGIC
+        let playerImgData = localStorage.getItem('hatermes_custom_skin') || null;
+
+        // Init Image Preview if exists
+        const previewEl = document.getElementById('preview-img');
+        if(playerImgData) {
+            previewEl.src = playerImgData;
+            previewEl.style.display = 'inline-block';
+        }
+
+        // Listen for File Upload
+        document.getElementById('file-upload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    playerImgData = evt.target.result;
+                    // Save to local storage
+                    localStorage.setItem('hatermes_custom_skin', playerImgData);
+                    // Update preview
+                    previewEl.src = playerImgData;
+                    previewEl.style.display = 'inline-block';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // AUDIO
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function sfx(type) {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.connect(g); g.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+            
+            if(type === 'jump') {
+                o.frequency.setValueAtTime(300, now); o.frequency.linearRampToValueAtTime(500, now+0.1);
+                g.gain.setValueAtTime(0.1, now); g.gain.linearRampToValueAtTime(0, now+0.1);
+                o.start(); o.stop(now+0.1);
+            } else if(type === 'coin') {
+                o.type = 'square'; o.frequency.setValueAtTime(800, now); 
+                g.gain.setValueAtTime(0.05, now); g.gain.linearRampToValueAtTime(0, now+0.1);
+                o.start(); o.stop(now+0.1);
+            }
+        }
+
+        // INIT
+        function initMenu() {
+            const grid = document.getElementById('level-grid');
+            grid.innerHTML = '';
+            for(let i=1; i<=TOTAL_LEVELS; i++){
+                let btn = document.createElement('button');
+                btn.className = 'level-btn ' + (i <= maxUnlocked ? 'unlocked' : '');
+                btn.innerText = i;
+                if(i <= maxUnlocked) btn.onclick = () => startGame(i);
+                grid.appendChild(btn);
+            }
+        }
+
+        function startGame(lvl) {
+            currentLevel = lvl;
+            let sizeAdd = Math.floor(lvl / 5);
+            ROWS = 10 + sizeAdd; COLS = 12 + sizeAdd;
+
+            document.getElementById('menu-screen').style.display = 'none';
+            document.getElementById('lose-modal').style.display = 'none';
+            document.getElementById('win-modal').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'flex';
+            document.getElementById('level-num').innerText = lvl;
+
+            hp = 5; updateHP();
+            stars = 0; document.getElementById('star-count').innerText = "0";
+            isInvincible = false;
+
+            generateMaze();
+            renderBoard();
+
+            if(gameTimer) clearInterval(gameTimer);
+            gameTimer = setInterval(updateGame, 100);
+        }
+
+        function generateMaze() {
+            map = [];
+            for(let r=0; r<ROWS; r++) {
+                let row = [];
+                for(let c=0; c<COLS; c++) row.push(1);
+                map.push(row);
+            }
+
+            function carve(r, c) {
+                map[r][c] = 0;
+                const dirs = [[0,2], [0,-2], [2,0], [-2,0]].sort(() => Math.random() - 0.5);
+                for(let [dr, dc] of dirs) {
+                    let nr = r+dr, nc = c+dc;
+                    if(nr>0 && nr<ROWS-1 && nc>0 && nc<COLS-1 && map[nr][nc]===1) {
+                        map[r+dr/2][c+dc/2] = 0;
+                        carve(nr, nc);
+                    }
+                }
+            }
+            carve(1, 1);
+
+            // EASY MODE: Remove 15% walls
+            for(let r=1; r<ROWS-1; r++){
+                for(let c=1; c<COLS-1; c++){
+                    if(map[r][c] === 1 && Math.random() < 0.15) map[r][c] = 0;
+                }
+            }
+            playerPos = {r:1, c:1};
+        }
+
+        function renderBoard() {
+            const board = document.getElementById('game-board');
+            board.innerHTML = '';
+            board.style.width = (COLS * TILE) + 'px';
+            board.style.height = (ROWS * TILE) + 'px';
+
+            for(let r=0; r<ROWS; r++){
+                for(let c=0; c<COLS; c++){
+                    if(map[r][c]===1) {
+                        let d = document.createElement('div');
+                        d.className = 'cell wall-block';
+                        d.style.left = c*TILE+'px'; d.style.top = r*TILE+'px';
+                        board.appendChild(d);
+                    }
+                }
+            }
+
+            // CREATE PLAYER
+            let p = document.createElement('div');
+            p.id = 'player';
+            
+            // APPLY CUSTOM IMAGE IF EXISTS
+            if(playerImgData) {
+                p.style.backgroundImage = `url('${playerImgData}')`;
+                p.style.backgroundColor = 'transparent'; // Remove default blue
+            }
+            
+            board.appendChild(p);
+            updatePlayerVisual();
+
+            let spots = [];
+            for(let r=1; r<ROWS-1; r++) for(let c=1; c<COLS-1; c++) if(map[r][c]===0 && (r>1||c>1)) spots.push({r,c});
+            spots.sort(() => Math.random()-0.5);
+
+            let gPos = spots.pop();
+            let g = document.createElement('div');
+            g.id = 'goal'; g.innerText = '🔒';
+            g.style.left = gPos.c*TILE+'px'; g.style.top = gPos.r*TILE+'px';
+            g.dataset.r = gPos.r; g.dataset.c = gPos.c;
+            board.appendChild(g);
+
+            for(let i=0; i<3; i++) {
+                let sPos = spots.pop();
+                let s = document.createElement('div');
+                s.className = 'star';
+                s.style.left = (sPos.c*TILE+3)+'px'; s.style.top = (sPos.r*TILE+3)+'px';
+                s.dataset.r = sPos.r; s.dataset.c = sPos.c;
+                board.appendChild(s);
+            }
+
+            enemies = [];
+            let enemyCount = Math.floor(currentLevel / 3) + 1;
+            for(let i=0; i<enemyCount; i++) {
+                if(spots.length===0) break;
+                let ePos = spots.pop();
+                let e = document.createElement('div');
+                e.className = 'enemy'; e.innerText = '👻';
+                e.style.left = ePos.c*TILE+'px'; e.style.top = ePos.r*TILE+'px';
+                board.appendChild(e);
+                enemies.push({ el: e, r: ePos.r, c: ePos.c, dir: 0 });
+            }
+        }
+
+        function updatePlayerVisual() {
+            let p = document.getElementById('player');
+            p.style.left = (playerPos.c * TILE + 2) + 'px';
+            p.style.top = (playerPos.r * TILE + 2) + 'px';
+        }
+
+        function updateGame() {
+            gameTick++;
+            if(gameTick % 3 === 0) { // Slow Enemies
+                enemies.forEach(e => {
+                    let moves = [[0,1], [0,-1], [1,0], [-1,0]];
+                    let valid = moves.filter(m => map[e.r+m[0]][e.c+m[1]] === 0);
+                    if(valid.length > 0) {
+                        let m = valid[Math.floor(Math.random()*valid.length)];
+                        e.r += m[0]; e.c += m[1];
+                        e.el.style.left = e.c*TILE+'px';
+                        e.el.style.top = e.r*TILE+'px';
+                    }
+                    if(e.r === playerPos.r && e.c === playerPos.c) takeDamage();
+                });
+            }
+        }
+
+        function movePlayer(dr, dc) {
+            let nr = playerPos.r + dr, nc = playerPos.c + dc;
+            if(map[nr][nc] === 1) return;
+            
+            playerPos.r = nr; playerPos.c = nc;
+            updatePlayerVisual();
+            sfx('jump');
+
+            let starsEl = document.querySelectorAll('.star');
+            starsEl.forEach(s => {
+                if(parseInt(s.dataset.r)===nr && parseInt(s.dataset.c)===nc) {
+                    s.remove(); stars++; sfx('coin');
+                    document.getElementById('star-count').innerText = stars;
+                    if(stars===3) {
+                        let g = document.getElementById('goal');
+                        g.classList.add('active'); g.innerText = '🚪';
+                    }
+                }
+            });
+
+            let g = document.getElementById('goal');
+            if(parseInt(g.dataset.r)===nr && parseInt(g.dataset.c)===nc && g.classList.contains('active')) {
+                clearInterval(gameTimer);
+                if(currentLevel === maxUnlocked && currentLevel < TOTAL_LEVELS) {
+                    maxUnlocked++;
+                    localStorage.setItem('hatermes_easy_max', maxUnlocked);
+                }
+                document.getElementById('win-modal').style.display = 'block';
+            }
+
+            enemies.forEach(e => { if(e.r===nr && e.c===nc) takeDamage(); });
+        }
+
+        function takeDamage() {
+            if(isInvincible) return;
+            hp--; updateHP();
+            let p = document.getElementById('player');
+            p.classList.add('damaged'); isInvincible = true;
+            
+            if(hp <= 0) {
+                clearInterval(gameTimer);
+                document.getElementById('lose-modal').style.display = 'block';
+            } else {
+                setTimeout(() => { isInvincible=false; p.classList.remove('damaged'); }, 1500);
+            }
+        }
+
+        function updateHP() {
+            let h = '';
+            for(let i=0; i<hp; i++) h += '❤️';
+            document.getElementById('hp-display').innerText = h;
+        }
+
+        function nextLevel() { startGame(currentLevel + 1); }
+        function retryLevel() { startGame(currentLevel); }
+        function goToMenu() { 
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('lose-modal').style.display = 'none';
+            document.getElementById('menu-screen').style.display = 'flex';
+            initMenu();
+        }
+
+        // Controls
+        document.addEventListener('keydown', e => {
+            if(e.key==='ArrowUp') movePlayer(-1,0);
+            if(e.key==='ArrowDown') movePlayer(1,0);
+            if(e.key==='ArrowLeft') movePlayer(0,-1);
+            if(e.key==='ArrowRight') movePlayer(0,1);
+        });
+        document.getElementById('btn-up').onclick = () => movePlayer(-1,0);
+        document.getElementById('btn-down').onclick = () => movePlayer(1,0);
+        document.getElementById('btn-left').onclick = () => movePlayer(0,-1);
+        document.getElementById('btn-right').onclick = () => movePlayer(0,1);
+
+        initMenu();
+    </script>
+</body>
+</html>
