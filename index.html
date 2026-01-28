@@ -3,327 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ខ្លាស៊ីគោ Premium - IT Zone</title>
+    <title>ខ្លាស៊ីគោ Pro Max - IT ZONE Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --gold: #f1c40f;
-            --dark: #0f172a;
-            --card-bg: #1e293b;
-            --red: #e11d48;
-            --green: #2ecc71;
+            --gold: #f1c40f; --dark: #0f172a; --card-bg: #1e293b;
+            --red: #e11d48; --green: #2ecc71; --vip: #a855f7;
         }
 
         body {
             font-family: 'Kantumruy Pro', sans-serif;
-            background: radial-gradient(circle, #1e293b 0%, #0f172a 100%);
-            color: white;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+            background: radial-gradient(circle, #1e293b 0%, #0b0f1a 100%);
+            color: white; margin: 0; padding-bottom: 150px;
+            overflow-x: hidden;
         }
 
-        /* Top Bar */
-        .top-bar {
-            width: 100%;
-            padding: 15px;
+        /* Header & Info */
+        .header {
             background: rgba(15, 23, 42, 0.9);
-            text-align: center;
-            border-bottom: 3px solid var(--gold);
+            padding: 15px; border-bottom: 3px solid var(--gold);
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px);
         }
 
-        .balance-display {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--gold);
+        .balance-txt { color: var(--gold); font-weight: bold; font-size: 1.3rem; }
+        .level-badge { background: var(--vip); padding: 2px 10px; border-radius: 5px; font-size: 0.8rem; }
+
+        /* Utility Buttons */
+        .menu-bar { display: flex; gap: 8px; padding: 10px; justify-content: center; }
+        .m-btn { 
+            background: #334155; border: 1px solid #475569; color: white; 
+            padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem;
+            transition: 0.3s;
         }
-
-        /* Result Pop-up Text */
-        #statusPopup {
-            position: fixed;
-            top: 20%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            z-index: 100;
-            padding: 20px 40px;
-            border-radius: 15px;
-            font-size: 1.8rem;
-            font-weight: bold;
-            text-align: center;
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        #statusPopup.show { transform: translate(-50%, -50%) scale(1); }
-
-        .win-theme { background: var(--green); color: white; border: 4px solid #fff; }
-        .lose-theme { background: var(--red); color: white; border: 4px solid #fff; }
+        .m-btn:hover { background: var(--gold); color: black; }
 
         /* Game Scene */
-        .game-scene {
-            position: relative;
-            margin: 50px 0;
-            width: 300px;
-            height: 180px;
-            display: flex;
-            justify-content: center;
-        }
-
+        .game-scene { position: relative; margin: 40px auto; width: 300px; height: 180px; display: flex; justify-content: center; }
         .bowl {
-            position: absolute;
-            top: -30px;
-            width: 200px;
-            height: 150px;
+            position: absolute; top: -30px; width: 190px; height: 140px;
             background: linear-gradient(135deg, #fbbf24 0%, #b45309 100%);
-            border-radius: 100px 100px 10px 10px;
-            z-index: 20;
-            cursor: pointer;
-            transition: 0.6s ease-in-out;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border: 4px solid var(--gold);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+            border-radius: 90px 90px 10px 10px; z-index: 20; border: 4px solid var(--gold);
+            transition: 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045);
+            display: flex; justify-content: center; align-items: center; font-weight: bold; color: rgba(0,0,0,0.2);
         }
-
-        .bowl.open { transform: translateY(-160px) rotate(-15deg); opacity: 0.9; }
-
-        .dice-table {
-            position: absolute;
-            bottom: -10px;
-            width: 240px;
-            height: 30px;
-            background: #451a03;
-            border-radius: 50%;
-            z-index: 5;
-            border: 4px solid #92400e;
-        }
-
-        .dice-container {
-            display: flex;
-            gap: 10px;
-            z-index: 10;
-            padding-top: 40px;
-        }
-
-        .dice {
-            width: 60px;
-            height: 60px;
-            background: white;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: inset 0 0 8px rgba(0,0,0,0.2);
-        }
-
-        .dice img { width: 85%; height: 85%; }
-
-        /* Shaking Animation */
+        .bowl.open { transform: translateY(-160px) rotate(-15deg); opacity: 0.5; pointer-events: none; }
         .shaking { animation: shake 0.1s infinite; }
-        @keyframes shake {
-            0% { transform: translate(3px, 3px); }
-            50% { transform: translate(-3px, -3px); }
-            100% { transform: translate(3px, -3px); }
+        @keyframes shake { 0% {transform:translate(3px,3px)} 50% {transform:translate(-3px,-3px)} 100% {transform:translate(3px,-3px)} }
+
+        .dice-table { position: absolute; bottom: -5px; width: 240px; height: 30px; background: #451a03; border-radius: 50%; border: 4px solid #92400e; }
+        .dice-container { display: flex; gap: 10px; z-index: 10; padding-top: 40px; }
+        .dice { width: 60px; height: 60px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .dice img { width: 85%; }
+
+        /* Betting Board */
+        .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 15px; max-width: 500px; margin: 0 auto; }
+        .card { 
+            background: var(--card-bg); border-radius: 15px; padding: 10px; text-align: center; 
+            border: 3px solid transparent; cursor: pointer; position: relative; transition: 0.2s;
         }
-
-        /* Board */
-        .board {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            width: 90%;
-            max-width: 480px;
-            margin-bottom: 100px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 10px;
-            text-align: center;
-            border: 3px solid transparent;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .card.selected { border-color: var(--gold); background: #334155; }
-
+        .card.selected { border-color: var(--gold); background: #334155; transform: scale(1.05); }
         .card img { width: 100%; border-radius: 10px; background: white; }
-
         .card-name { margin-top: 5px; font-weight: bold; color: var(--gold); font-size: 0.9rem; }
-
-        .bet-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: var(--red);
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.75rem;
-            display: none;
-            border: 2px solid white;
-        }
+        .bet-badge { position: absolute; top: -8px; right: -8px; background: var(--red); padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; border: 2px solid white; z-index: 5; }
 
         /* Footer Controls */
-        .footer-controls {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: var(--dark);
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            border-top: 2px solid var(--gold);
+        .footer {
+            position: fixed; bottom: 0; width: 100%; background: var(--dark);
+            padding: 15px; border-top: 3px solid var(--gold); display: flex; flex-direction: column; align-items: center; gap: 10px; z-index: 1000;
         }
+        .chip-box { display: flex; gap: 8px; overflow-x: auto; width: 100%; justify-content: center; padding: 5px; }
+        .chip { background: #334155; border: 1px solid var(--gold); color: white; padding: 5px 12px; border-radius: 50px; font-size: 0.8rem; cursor: pointer; }
+        .main-row { display: flex; gap: 15px; }
+        input { width: 120px; padding: 12px; border-radius: 10px; border: none; text-align: center; font-size: 1.1rem; font-weight: bold; }
+        .btn-roll { background: var(--gold); color: black; padding: 10px 50px; border-radius: 10px; border: none; font-weight: bold; font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px #b45309; }
+        .btn-roll:active { transform: translateY(2px); box-shadow: 0 2px #b45309; }
 
-        input { padding: 10px; border-radius: 8px; border: none; width: 100px; font-size: 1rem; text-align: center; }
-
-        .btn-roll {
-            background: var(--gold);
-            color: #000;
-            border: none;
-            padding: 10px 40px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            cursor: pointer;
+        /* Pop-up Messages */
+        #popup {
+            position: fixed; top: 25%; left: 50%; transform: translate(-50%, -50%) scale(0);
+            z-index: 2000; padding: 20px 40px; border-radius: 20px; font-size: 1.5rem; font-weight: bold;
+            text-align: center; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 5px solid white;
         }
+        #popup.show { transform: translate(-50%, -50%) scale(1); }
 
-        .btn-roll:disabled { background: #555; }
+        /* Modal */
+        #leaderboard {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: var(--card-bg); width: 85%; max-width: 400px; padding: 20px; border-radius: 20px;
+            z-index: 3000; border: 2px solid var(--gold); display: none;
+        }
+        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index: 2500; display:none; }
     </style>
 </head>
 <body>
 
-    <div id="statusPopup"></div>
+<div id="popup"></div>
+<div class="overlay" id="overlay"></div>
 
-    <div class="top-bar">
-        <div class="balance-display">💰 <span id="balanceDisplay">100,000</span> ៛</div>
+<div id="leaderboard">
+    <h2 style="text-align:center; color:var(--gold);">🏆 តារាងមហាសេដ្ឋី</h2>
+    <div id="lb-content"></div>
+    <button class="m-btn" style="width:100%; margin-top:20px; padding: 10px;" onclick="closeLB()">បិទ</button>
+</div>
+
+<div class="header">
+    <div>
+        <span class="level-badge" id="lvl">Level 1</span>
+        <div style="font-size: 0.7rem; margin-top: 3px;" id="vip">Member</div>
     </div>
+    <div class="balance-txt">💰 <span id="balance">100,000</span> ៛</div>
+</div>
 
-    <div class="game-scene">
-        <div class="dice-table"></div>
-        <div class="dice-container">
-            <div class="dice" id="d1">?</div>
-            <div class="dice" id="d2">?</div>
-            <div class="dice" id="d3">?</div>
-        </div>
-        <div class="bowl" id="bowl"></div>
+<div class="menu-bar">
+    <button class="m-btn" onclick="claimDaily()">🎁 កាដូប្រចាំថ្ងៃ</button>
+    <button class="m-btn" onclick="showLB()">🏆 ចំណាត់ថ្នាក់</button>
+    <button class="m-btn" style="color:var(--red)" onclick="clearAllBets()">🧹 លាងចាន</button>
+</div>
+
+<div class="game-scene">
+    <div class="dice-table"></div>
+    <div class="dice-container">
+        <div class="dice" id="d1">🎲</div>
+        <div class="dice" id="d2">🎲</div>
+        <div class="dice" id="d3">🎲</div>
     </div>
+    <div class="bowl" id="bowl">IT ZONE</div>
+</div>
 
-    <div class="board" id="gameBoard"></div>
+<div class="board" id="board"></div>
 
-    <div class="footer-controls">
-        <input type="number" id="betInput" value="5000" step="1000">
-        <button class="btn-roll" onclick="playGame()" id="rollBtn">ក្រឡុក</button>
+<div class="footer">
+    <div class="chip-box">
+        <button class="chip" onclick="setBet(1000)">1K</button>
+        <button class="chip" onclick="setBet(5000)">5K</button>
+        <button class="chip" onclick="setBet(10000)">10K</button>
+        <button class="chip" onclick="setBet(50000)">50K</button>
+        <button class="chip" onclick="setBet(100000)">100K</button>
     </div>
+    <div class="main-row">
+        <input type="number" id="betInput" value="5000">
+        <button class="btn-roll" onclick="roll()" id="rollBtn">ក្រឡុក</button>
+    </div>
+</div>
 
-    <script>
-        const animals = [
-            { id: 'tiger', name: 'ខ្លា', img: 'tiger.png' },
-            { id: 'gourd', name: 'ឃ្លោក', img: 'gourd.png' },
-            { id: 'chicken', name: 'មាន់', img: 'chicken.png' },
-            { id: 'shrimp', name: 'បង្កង', img: 'shrimp.png' },
-            { id: 'fish', name: 'ត្រី', img: 'fish.png' },
-            { id: 'crab', name: 'ក្តាម', img: 'crab.png' }
-        ];
+<script>
+    const animals = [
+        { id: 'tiger', name: 'ខ្លា', img: 'tiger.png' },
+        { id: 'gourd', name: 'ឃ្លោក', img: 'gourd.png' },
+        { id: 'chicken', name: 'មាន់', img: 'chicken.png' },
+        { id: 'shrimp', name: 'បង្កង', img: 'shrimp.png' },
+        { id: 'fish', name: 'ត្រី', img: 'fish.png' },
+        { id: 'crab', name: 'ក្តាម', img: 'crab.png' }
+    ];
 
-        let balance = 100000;
-        let bets = {};
+    let user = {
+        balance: 100000,
+        level: 1,
+        xp: 0,
+        bets: {},
+        lastDaily: null
+    };
 
-        function init() {
-            const board = document.getElementById('gameBoard');
-            animals.forEach(a => {
-                board.innerHTML += `
-                    <div class="card" id="card-${a.id}" onclick="placeBet('${a.id}')">
-                        <div class="bet-badge" id="badge-${a.id}">0</div>
-                        <img src="${a.img}" onerror="this.src='https://via.placeholder.com/150?text=${a.name}'">
-                        <div class="card-name">${a.name}</div>
-                    </div>
-                `;
-            });
-        }
+    function init() {
+        const b = document.getElementById('board');
+        animals.forEach(a => {
+            b.innerHTML += `
+                <div class="card" id="card-${a.id}" onclick="placeBet('${a.id}')">
+                    <div class="bet-badge" id="badge-${a.id}" style="display:none">0</div>
+                    <img src="${a.img}" onerror="this.src='https://via.placeholder.com/150?text=${a.name}'">
+                    <div class="card-name">${a.name}</div>
+                </div>
+            `;
+        });
+        load();
+        updateUI();
+    }
 
-        function placeBet(id) {
-            const amt = parseInt(document.getElementById('betInput').value);
-            if (balance < amt) return showPopup("លុយមិនគ្រាន់ទេលោកបង!", "lose-theme");
-            
-            balance -= amt;
-            bets[id] = (bets[id] || 0) + amt;
-            updateUI();
-        }
+    function placeBet(id) {
+        let amt = parseInt(document.getElementById('betInput').value);
+        if (user.balance < amt) return pop("លុយមិនគ្រប់ទេលោកបង!", "var(--red)");
+        user.balance -= amt;
+        user.bets[id] = (user.bets[id] || 0) + amt;
+        updateUI();
+    }
 
-        function updateUI() {
-            document.getElementById('balanceDisplay').textContent = balance.toLocaleString();
-            animals.forEach(a => {
-                const badge = document.getElementById(`badge-${a.id}`);
-                const card = document.getElementById(`card-${a.id}`);
-                if (bets[a.id]) {
-                    badge.style.display = 'block';
-                    badge.textContent = bets[a.id].toLocaleString() + "៛";
-                    card.classList.add('selected');
-                } else {
-                    badge.style.display = 'none';
-                    card.classList.remove('selected');
-                }
-            });
-        }
+    function setBet(v) { document.getElementById('betInput').value = v; }
 
-        function showPopup(text, theme) {
-            const popup = document.getElementById('statusPopup');
-            popup.textContent = text;
-            popup.className = theme + ' show';
-            setTimeout(() => { popup.classList.remove('show'); }, 2500);
-        }
+    function clearAllBets() {
+        for(let id in user.bets) user.balance += user.bets[id];
+        user.bets = {};
+        updateUI();
+    }
 
-        function playGame() {
-            if (Object.keys(bets).length === 0) return alert("សូមចាក់សិន!");
-            
-            const bowl = document.getElementById('bowl');
-            const btn = document.getElementById('rollBtn');
-            
-            btn.disabled = true;
-            bowl.classList.remove('open');
-            
+    function roll() {
+        if (Object.keys(user.bets).length === 0) return alert("ចាក់សិនមេ!");
+        const btn = document.getElementById('rollBtn');
+        const bowl = document.getElementById('bowl');
+        btn.disabled = true;
+        bowl.classList.remove('open');
+
+        setTimeout(() => {
+            bowl.classList.add('shaking');
             setTimeout(() => {
-                bowl.classList.add('shaking');
-                setTimeout(() => {
-                    bowl.classList.remove('shaking');
-                    let results = [];
-                    for(let i=1; i<=3; i++) {
-                        const res = animals[Math.floor(Math.random() * animals.length)];
-                        results.push(res.id);
-                        document.getElementById('d'+i).innerHTML = `<img src="${res.img}" onerror="this.parentElement.innerHTML='${res.name}'">`;
-                    }
-                    bowl.classList.add('open');
-                    finishGame(results);
-                    btn.disabled = false;
-                }, 1200);
-            }, 200);
+                bowl.classList.remove('shaking');
+                let res = [];
+                for(let i=1; i<=3; i++) {
+                    const a = animals[Math.floor(Math.random()*6)];
+                    res.push(a.id);
+                    document.getElementById('d'+i).innerHTML = `<img src="${a.img}" onerror="this.parentElement.innerHTML='${a.name}'">`;
+                }
+                bowl.classList.add('open');
+                calc(res);
+                btn.disabled = false;
+            }, 1500);
+        }, 200);
+    }
+
+    function calc(res) {
+        let win = 0;
+        for(let id in user.bets) {
+            const count = res.filter(r => r === id).length;
+            if (count > 0) win += user.bets[id] + (user.bets[id] * count);
         }
 
-        function finishGame(results) {
-            let winAmount = 0;
-            for(let id in bets) {
-                const count = results.filter(r => r === id).length;
-                if (count > 0) winAmount += bets[id] + (bets[id] * count);
-            }
+        const winQuotes = ["ចាក់ទៀតអូន ចាក់ទៀត!", "ហេងណាស់មេ! កើបលុយ!", "ដៃឡើងណាស់លោកបង!", "មេយំហើយលើកនេះ!", "ចាក់អីត្រូវហ្នឹងហ្មង!"];
+        const loseQuotes = ["អញថាហើយចាកុំឲ្យចាក់!", "អស់ពីខ្លួនហើយមេអើយ!", "ទៅលាងមុខសិនទៅបង!", "មេហូបបាត់! សាកថ្មី!", "កុំអាលអស់សង្ឃឹម!"];
 
-            if (winAmount > 0) {
-                balance += winAmount;
-                showPopup("ចាក់ទៀតអូន ចាក់ទៀត (ឈ្នះ " + winAmount.toLocaleString() + "៛)", "win-theme");
+        if (win > 0) {
+            user.balance += win;
+            user.xp += 25;
+            let q = winQuotes[Math.floor(Math.random()*winQuotes.length)];
+            pop(`${q} (+${win.toLocaleString()}៛)`, "var(--green)");
+        } else {
+            user.xp += 5;
+            let q = loseQuotes[Math.floor(Math.random()*loseQuotes.length)];
+            pop(q, "var(--red)");
+        }
+
+        if (user.xp >= user.level * 100) {
+            user.level++;
+            user.xp = 0;
+            pop("ឡើង Level " + user.level + " ហើយ!", "var(--vip)");
+        }
+
+        user.bets = {};
+        save();
+        updateUI();
+    }
+
+    function pop(txt, col) {
+        const p = document.getElementById('popup');
+        p.textContent = txt; p.style.background = col; p.classList.add('show');
+        setTimeout(() => p.classList.remove('show'), 2500);
+    }
+
+    function updateUI() {
+        document.getElementById('balance').textContent = user.balance.toLocaleString();
+        document.getElementById('lvl').textContent = "Level " + user.level;
+        document.getElementById('vip').textContent = user.level > 10 ? "VIP GOLD" : "Member";
+        
+        animals.forEach(a => {
+            const badge = document.getElementById('badge-'+a.id);
+            const card = document.getElementById('card-'+a.id);
+            if (user.bets[a.id]) {
+                badge.style.display = 'block';
+                badge.textContent = user.bets[a.id] >= 1000 ? (user.bets[a.id]/1000)+'K' : user.bets[a.id];
+                card.classList.add('selected');
             } else {
-                showPopup("អញថាហើយចាកុំឲ្យចាក់ (ចាញ់អស់ហើយ)", "lose-theme");
+                badge.style.display = 'none';
+                card.classList.remove('selected');
             }
-            
-            bets = {};
-            updateUI();
-        }
+        });
+    }
 
-        init();
-    </script>
+    function claimDaily() {
+        const today = new Date().toDateString();
+        if (user.lastDaily === today) return pop("ចាំស្អែកមកទៀត!", "var(--red)");
+        let gift = 5000 + (user.level * 1000);
+        user.balance += gift;
+        user.lastDaily = today;
+        pop("បានកាដូ " + gift.toLocaleString() + "៛", "var(--green)");
+        save(); updateUI();
+    }
+
+    function showLB() {
+        const lb = document.getElementById('lb-content');
+        lb.innerHTML = `<div style="display:flex; justify-content:space-between; margin-top:10px;"><span>1. អ្នក (YOU)</span> <span style="color:var(--gold)">${user.balance.toLocaleString()}៛</span></div>`;
+        document.getElementById('leaderboard').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+
+    function closeLB() {
+        document.getElementById('leaderboard').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+    }
+
+    function save() { localStorage.setItem('ksData', JSON.stringify(user)); }
+    function load() {
+        const d = localStorage.getItem('ksData');
+        if (d) user = JSON.parse(d);
+    }
+
+    init();
+</script>
 </body>
 </html>
