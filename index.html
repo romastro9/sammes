@@ -34,6 +34,11 @@
             background: rgba(0,0,0,0.3); margin: 10px; border-radius: 10px;
         }
 
+        .m-btn {
+            background: #334155; color: white; border: 1px solid var(--gold);
+            padding: 8px 12px; border-radius: 20px; cursor: pointer; font-size: 0.8rem;
+        }
+
         /* Game Scene */
         .game-scene { position: relative; margin: 40px auto; width: 280px; height: 180px; display: flex; justify-content: center; }
         .bowl {
@@ -48,7 +53,7 @@
         @keyframes shake { 0% {transform:translate(2px,2px)} 50% {transform:translate(-2px,-2px)} 100% {transform:translate(2px,-2px)} }
 
         .dice-container { display: flex; gap: 10px; z-index: 10; padding-top: 40px; }
-        .dice { width: 55px; height: 55px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .dice { width: 55px; height: 55px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: black; }
         .dice img { width: 85%; }
 
         /* Betting Board */
@@ -61,16 +66,6 @@
         .card img { width: 100%; border-radius: 8px; background: white; }
         .bet-badge { position: absolute; top: -5px; right: -5px; background: var(--red); padding: 2px 6px; border-radius: 8px; font-size: 0.7rem; border: 1px solid white; z-index: 5; }
 
-        /* Share Area */
-        #share-box {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
-            background: var(--card-bg); padding: 20px; border-radius: 20px; border: 3px solid var(--gold);
-            z-index: 3000; text-align: center; width: 80%;
-        }
-        #share-box.active { transform: translate(-50%, -50%) scale(1); }
-        .share-btn { padding: 10px; border-radius: 10px; border: none; color: white; margin: 5px; cursor: pointer; width: 120px; font-weight: bold; }
-        .fb { background: #1877F2; } .tg { background: #0088cc; }
-
         /* Footer */
         .footer {
             position: fixed; bottom: 0; width: 100%; background: var(--dark);
@@ -81,25 +76,11 @@
         .btn-roll { background: var(--gold); color: black; padding: 10px 40px; border-radius: 8px; border: none; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
 
         #msg { position: fixed; top: 25%; left: 50%; transform: translate(-50%, -50%); z-index: 2000; padding: 15px 30px; border-radius: 15px; font-weight: bold; display: none; text-align: center; border: 4px solid white; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2500; display: none; }
     </style>
 </head>
 <body>
 
 <div id="msg"></div>
-<div class="overlay" id="overlay" onclick="closeShare()"></div>
-
-<div id="share-box">
-    <h3 id="share-title" style="color:var(--gold);"></h3>
-    <p>ចែករំលែកភាពហេងជាមួយមិត្តភក្តិ!</p>
-    <div style="background: white; padding: 10px; border-radius: 10px; margin-bottom: 15px;">
-        <img src="it_zone_logo.png" style="width: 50px;" onerror="this.src='https://via.placeholder.com/50?text=IT+ZONE'">
-        <p style="color: black; font-weight: bold; margin: 5px 0;" id="share-amount"></p>
-    </div>
-    <button class="share-btn fb" onclick="shareSocial('fb')">Facebook</button>
-    <button class="share-btn tg" onclick="shareSocial('tg')">Telegram</button>
-    <button class="m-btn" style="display:block; width:100%; margin-top:10px; background:none; color:white; border:none; cursor:pointer;" onclick="closeShare()">បោះបង់</button>
-</div>
 
 <div class="header">
     <div style="font-weight: bold; color: var(--gold);">IT ZONE GAMING</div>
@@ -134,7 +115,7 @@
     <div style="font-size: 0.7rem; color: #94a3b8;">Supported by Yah Rapha X Master Care</div>
 </div>
 
-<audio id="bgMusic" loop src="https://Vip_ចាក់ចាក់ចាញ់ទាំងអស់_Break_Mix_Deeje_Kun_Drc_Ft_Mrr_Body_Black.mp3"></audio>
+<audio id="bgMusic" loop src="Vip_ចាក់បាក់ចាញ់ទាំងអស់_Break_Mix_Deeje_Kun_Drc_Ft_Mrr_Body_Black.mp3"></audio>
 <audio id="ambientSound" loop src="https://www.soundjay.com/misc/sounds/crowd-talking-1.mp3"></audio>
 <audio id="rollSnd" src="https://www.soundjay.com/misc/sounds/dice-roll-1.mp3"></audio>
 <audio id="winSnd" src="https://www.soundjay.com/human/sounds/applause-01.mp3"></audio>
@@ -151,7 +132,6 @@
 
     let balance = 100000;
     let bets = {};
-    let lastWin = 0;
 
     function init() {
         const board = document.getElementById('board');
@@ -171,7 +151,7 @@
         const audio = document.getElementById(id);
         const status = document.getElementById(id === 'bgMusic' ? 'bgStatus' : 'amStatus');
         if (audio.paused) {
-            audio.play();
+            audio.play().catch(e => console.log("Audio play blocked", e));
             status.textContent = "ON";
             status.style.color = "var(--green)";
         } else {
@@ -191,6 +171,11 @@
 
     function playGame() {
         if (Object.keys(bets).length === 0) return alert("ចាក់សិនមេ!");
+        
+        // Auto-play BG music on first roll if user hasn't toggled it
+        const bg = document.getElementById('bgMusic');
+        if(bg.paused) toggleAudio('bgMusic');
+
         const btn = document.getElementById('rollBtn');
         const bowl = document.getElementById('bowl');
         const rollSnd = document.getElementById('rollSnd');
@@ -207,7 +192,7 @@
                 for(let i=1; i<=3; i++) {
                     const a = animals[Math.floor(Math.random()*6)];
                     res.push(a.id);
-                    document.getElementById('d'+i).innerHTML = `<img src="${a.img}" onerror="this.parentElement.innerHTML='${a.name}'">`;
+                    document.getElementById('d'+i).innerHTML = `<img src="${a.img}" style="width:85%">`;
                 }
                 bowl.classList.add('open');
                 checkResult(res);
@@ -227,15 +212,14 @@
         m.style.display = 'block';
         if (win > 0) {
             balance += win;
-            lastWin = win;
             document.getElementById('winSnd').play();
             m.style.background = 'var(--green)';
-            m.innerHTML = `ចាក់ទៀតអូន ចាក់ទៀត! <br> ឈ្នះ ${win.toLocaleString()}៛ <br> <button onclick="openShare()" style="background:white; border:none; padding:5px 10px; border-radius:5px; margin-top:5px; cursor:pointer;">ចែករំលែក</button>`;
+            m.innerHTML = `ឈ្នះ ${win.toLocaleString()}៛`;
         } else {
             m.style.background = 'var(--red)';
-            m.textContent = "អញថាហើយចាកុំឲ្យចាក់!";
+            m.textContent = "អត់ត្រូវទេ!";
         }
-        setTimeout(() => { if(win === 0) m.style.display = 'none'; }, 3000);
+        setTimeout(() => { m.style.display = 'none'; }, 3000);
         bets = {};
         updateUI();
     }
@@ -251,31 +235,10 @@
         });
     }
 
-    // Share Logic
-    function openShare() {
-        document.getElementById('msg').style.display = 'none';
-        document.getElementById('share-title').textContent = "ខ្ញុំទើបតែឈ្នះ!";
-        document.getElementById('share-amount').textContent = lastWin.toLocaleString() + " ៛";
-        document.getElementById('share-box').classList.add('active');
-        document.getElementById('overlay').style.display = 'block';
-    }
-
-    function closeShare() {
-        document.getElementById('share-box').classList.remove('active');
-        document.getElementById('overlay').style.display = 'none';
-    }
-
-    function shareSocial(platform) {
-        const text = `ខ្ញុំទើបតែឈ្នះលុយ ${lastWin.toLocaleString()}៛ ក្នុងហ្គេមខ្លាស៊ីគោ IT ZONE! សាកល្បងសំណាងទាំងអស់គ្នា!`;
-        const url = window.location.href;
-        let link = "";
-        if (platform === 'fb') link = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`;
-        if (platform === 'tg') link = `https://t.me/share/url?url=${url}&text=${text}`;
-        window.open(link, '_blank');
-    }
-
     init();
 </script>
 </body>
 </html>
+
+
 
