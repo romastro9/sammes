@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kla Sikor VIP - IT ZONE Edition</title>
+    <title>ខ្លាស៊ីគោ Pro Max - IT ZONE Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -14,130 +14,138 @@
         body {
             font-family: 'Kantumruy Pro', sans-serif;
             background: radial-gradient(circle, #1e293b 0%, #0b0f1a 100%);
-            color: white; margin: 0; padding-bottom: 160px;
+            color: white; margin: 0; padding-bottom: 150px;
             overflow-x: hidden;
         }
 
-        /* Top Header */
+        /* Header & Info */
         .header {
-            background: rgba(15, 23, 42, 0.95);
+            background: rgba(15, 23, 42, 0.9);
             padding: 15px; border-bottom: 3px solid var(--gold);
             display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 1000;
+            position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px);
         }
 
         .balance-txt { color: var(--gold); font-weight: bold; font-size: 1.3rem; }
+        .level-badge { background: var(--vip); padding: 2px 10px; border-radius: 5px; font-size: 0.8rem; }
 
-        /* Audio Controls */
-        .audio-controls {
-            display: flex; gap: 10px; padding: 10px; justify-content: center;
-            background: rgba(0,0,0,0.3); margin: 10px; border-radius: 10px;
+        /* Utility Buttons */
+        .menu-bar { display: flex; gap: 8px; padding: 10px; justify-content: center; }
+        .m-btn { 
+            background: #334155; border: 1px solid #475569; color: white; 
+            padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem;
+            transition: 0.3s;
         }
+        .m-btn:hover { background: var(--gold); color: black; }
 
         /* Game Scene */
-        .game-scene { position: relative; margin: 40px auto; width: 280px; height: 180px; display: flex; justify-content: center; }
+        .game-scene { position: relative; margin: 40px auto; width: 300px; height: 180px; display: flex; justify-content: center; }
         .bowl {
-            position: absolute; top: -30px; width: 180px; height: 140px;
+            position: absolute; top: -30px; width: 190px; height: 140px;
             background: linear-gradient(135deg, #fbbf24 0%, #b45309 100%);
             border-radius: 90px 90px 10px 10px; z-index: 20; border: 4px solid var(--gold);
             transition: 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            display: flex; justify-content: center; align-items: center; font-weight: bold; color: rgba(0,0,0,0.2);
         }
-        .bowl.open { transform: translateY(-160px) rotate(-15deg); opacity: 0.3; pointer-events: none; }
+        .bowl.open { transform: translateY(-160px) rotate(-15deg); opacity: 0.5; pointer-events: none; }
         .shaking { animation: shake 0.1s infinite; }
-        @keyframes shake { 0% {transform:translate(2px,2px)} 50% {transform:translate(-2px,-2px)} 100% {transform:translate(2px,-2px)} }
+        @keyframes shake { 0% {transform:translate(3px,3px)} 50% {transform:translate(-3px,-3px)} 100% {transform:translate(3px,-3px)} }
 
+        .dice-table { position: absolute; bottom: -5px; width: 240px; height: 30px; background: #451a03; border-radius: 50%; border: 4px solid #92400e; }
         .dice-container { display: flex; gap: 10px; z-index: 10; padding-top: 40px; }
-        .dice { width: 55px; height: 55px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .dice { width: 60px; height: 60px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         .dice img { width: 85%; }
 
         /* Betting Board */
-        .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px; max-width: 450px; margin: 0 auto; }
+        .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 15px; max-width: 500px; margin: 0 auto; }
         .card { 
-            background: var(--card-bg); border-radius: 12px; padding: 8px; text-align: center; 
+            background: var(--card-bg); border-radius: 15px; padding: 10px; text-align: center; 
             border: 3px solid transparent; cursor: pointer; position: relative; transition: 0.2s;
         }
-        .card.selected { border-color: var(--gold); background: #334155; }
-        .card img { width: 100%; border-radius: 8px; background: white; }
-        .bet-badge { position: absolute; top: -5px; right: -5px; background: var(--red); padding: 2px 6px; border-radius: 8px; font-size: 0.7rem; border: 1px solid white; z-index: 5; }
+        .card.selected { border-color: var(--gold); background: #334155; transform: scale(1.05); }
+        .card img { width: 100%; border-radius: 10px; background: white; }
+        .card-name { margin-top: 5px; font-weight: bold; color: var(--gold); font-size: 0.9rem; }
+        .bet-badge { position: absolute; top: -8px; right: -8px; background: var(--red); padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; border: 2px solid white; z-index: 5; }
 
-        /* Share Area */
-        #share-box {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
-            background: var(--card-bg); padding: 20px; border-radius: 20px; border: 3px solid var(--gold);
-            z-index: 3000; text-align: center; width: 80%;
-        }
-        #share-box.active { transform: translate(-50%, -50%) scale(1); }
-        .share-btn { padding: 10px; border-radius: 10px; border: none; color: white; margin: 5px; cursor: pointer; width: 120px; font-weight: bold; }
-        .fb { background: #1877F2; } .tg { background: #0088cc; }
-
-        /* Footer */
+        /* Footer Controls */
         .footer {
             position: fixed; bottom: 0; width: 100%; background: var(--dark);
             padding: 15px; border-top: 3px solid var(--gold); display: flex; flex-direction: column; align-items: center; gap: 10px; z-index: 1000;
         }
-        .main-row { display: flex; gap: 10px; }
-        input { width: 100px; padding: 10px; border-radius: 8px; border: none; text-align: center; font-weight: bold; }
-        .btn-roll { background: var(--gold); color: black; padding: 10px 40px; border-radius: 8px; border: none; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
+        .chip-box { display: flex; gap: 8px; overflow-x: auto; width: 100%; justify-content: center; padding: 5px; }
+        .chip { background: #334155; border: 1px solid var(--gold); color: white; padding: 5px 12px; border-radius: 50px; font-size: 0.8rem; cursor: pointer; }
+        .main-row { display: flex; gap: 15px; }
+        input { width: 120px; padding: 12px; border-radius: 10px; border: none; text-align: center; font-size: 1.1rem; font-weight: bold; }
+        .btn-roll { background: var(--gold); color: black; padding: 10px 50px; border-radius: 10px; border: none; font-weight: bold; font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px #b45309; }
+        .btn-roll:active { transform: translateY(2px); box-shadow: 0 2px #b45309; }
 
-        #msg { position: fixed; top: 25%; left: 50%; transform: translate(-50%, -50%); z-index: 2000; padding: 15px 30px; border-radius: 15px; font-weight: bold; display: none; text-align: center; border: 4px solid white; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2500; display: none; }
+        /* Pop-up Messages */
+        #popup {
+            position: fixed; top: 25%; left: 50%; transform: translate(-50%, -50%) scale(0);
+            z-index: 2000; padding: 20px 40px; border-radius: 20px; font-size: 1.5rem; font-weight: bold;
+            text-align: center; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 5px solid white;
+        }
+        #popup.show { transform: translate(-50%, -50%) scale(1); }
+
+        /* Modal */
+        #leaderboard {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: var(--card-bg); width: 85%; max-width: 400px; padding: 20px; border-radius: 20px;
+            z-index: 3000; border: 2px solid var(--gold); display: none;
+        }
+        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index: 2500; display:none; }
     </style>
 </head>
 <body>
 
-<div id="msg"></div>
-<div class="overlay" id="overlay" onclick="closeShare()"></div>
+<div id="popup"></div>
+<div class="overlay" id="overlay"></div>
 
-<div id="share-box">
-    <h3 id="share-title" style="color:var(--gold);"></h3>
-    <p>ចែករំលែកភាពហេងជាមួយមិត្តភក្តិ!</p>
-    <div style="background: white; padding: 10px; border-radius: 10px; margin-bottom: 15px;">
-        <img src="it_zone_logo.png" style="width: 50px;" onerror="this.src='https://via.placeholder.com/50?text=IT+ZONE'">
-        <p style="color: black; font-weight: bold; margin: 5px 0;" id="share-amount"></p>
-    </div>
-    <button class="share-btn fb" onclick="shareSocial('fb')">Facebook</button>
-    <button class="share-btn tg" onclick="shareSocial('tg')">Telegram</button>
-    <button class="m-btn" style="display:block; width:100%; margin-top:10px; background:none; color:white; border:none; cursor:pointer;" onclick="closeShare()">បោះបង់</button>
+<div id="leaderboard">
+    <h2 style="text-align:center; color:var(--gold);">🏆 តារាងមហាសេដ្ឋី</h2>
+    <div id="lb-content"></div>
+    <button class="m-btn" style="width:100%; margin-top:20px; padding: 10px;" onclick="closeLB()">បិទ</button>
 </div>
 
 <div class="header">
-    <div style="font-weight: bold; color: var(--gold);">IT ZONE GAMING</div>
+    <div>
+        <span class="level-badge" id="lvl">Level 1</span>
+        <div style="font-size: 0.7rem; margin-top: 3px;" id="vip">Member</div>
+    </div>
     <div class="balance-txt">💰 <span id="balance">100,000</span> ៛</div>
 </div>
 
-<div class="audio-controls">
-    <button class="m-btn" onclick="toggleAudio('bgMusic')">🎵 ចម្រៀង: <span id="bgStatus">OFF</span></button>
-    <button class="m-btn" onclick="toggleAudio('ambientSound')">🔊 សំឡេងអ៊ូអរ: <span id="amStatus">OFF</span></button>
+<div class="menu-bar">
+    <button class="m-btn" onclick="claimDaily()">🎁 កាដូប្រចាំថ្ងៃ</button>
+    <button class="m-btn" onclick="showLB()">🏆 ចំណាត់ថ្នាក់</button>
+    <button class="m-btn" style="color:var(--red)" onclick="clearAllBets()">🧹 លាងចាន</button>
 </div>
 
 <div class="game-scene">
-    <div style="position:absolute; bottom:0; width:220px; height:20px; background:#451a03; border-radius:50%; border:3px solid #92400e;"></div>
+    <div class="dice-table"></div>
     <div class="dice-container">
-        <div class="dice" id="d1">?</div>
-        <div class="dice" id="d2">?</div>
-        <div class="dice" id="d3">?</div>
+        <div class="dice" id="d1">🎲</div>
+        <div class="dice" id="d2">🎲</div>
+        <div class="dice" id="d3">🎲</div>
     </div>
-    <div class="bowl" id="bowl">
-        <img src="it_zone_logo.png" style="width: 40px; opacity: 0.5;" onerror="this.style.display='none'">
-        <span style="font-size: 0.7rem;">IT ZONE</span>
-    </div>
+    <div class="bowl" id="bowl">IT ZONE</div>
 </div>
 
 <div class="board" id="board"></div>
 
 <div class="footer">
+    <div class="chip-box">
+        <button class="chip" onclick="setBet(1000)">1K</button>
+        <button class="chip" onclick="setBet(5000)">5K</button>
+        <button class="chip" onclick="setBet(10000)">10K</button>
+        <button class="chip" onclick="setBet(50000)">50K</button>
+        <button class="chip" onclick="setBet(100000)">100K</button>
+    </div>
     <div class="main-row">
         <input type="number" id="betInput" value="5000">
-        <button class="btn-roll" onclick="playGame()" id="rollBtn">ក្រឡុក</button>
+        <button class="btn-roll" onclick="roll()" id="rollBtn">ក្រឡុក</button>
     </div>
-    <div style="font-size: 0.7rem; color: #94a3b8;">Supported by Yah Rapha X Master Care</div>
 </div>
-
-<audio id="bgMusic" loop src="https://www.soundjay.com/free-music/sounds/ambient-1.mp3"></audio>
-<audio id="ambientSound" loop src="https://www.soundjay.com/misc/sounds/crowd-talking-1.mp3"></audio>
-<audio id="rollSnd" src="https://www.soundjay.com/misc/sounds/dice-roll-1.mp3"></audio>
-<audio id="winSnd" src="https://www.soundjay.com/human/sounds/applause-01.mp3"></audio>
 
 <script>
     const animals = [
@@ -149,55 +157,51 @@
         { id: 'crab', name: 'ក្តាម', img: 'crab.png' }
     ];
 
-    let balance = 100000;
-    let bets = {};
-    let lastWin = 0;
+    let user = {
+        balance: 100000,
+        level: 1,
+        xp: 0,
+        bets: {},
+        lastDaily: null
+    };
 
     function init() {
-        const board = document.getElementById('board');
+        const b = document.getElementById('board');
         animals.forEach(a => {
-            board.innerHTML += `
-                <div class="card" id="c-${a.id}" onclick="placeBet('${a.id}')">
-                    <div class="bet-badge" id="b-${a.id}" style="display:none">0</div>
-                    <img src="${a.img}" onerror="this.src='https://via.placeholder.com/100?text=${a.name}'">
-                    <div style="font-size:0.8rem; font-weight:bold; margin-top:5px; color:var(--gold)">${a.name}</div>
+            b.innerHTML += `
+                <div class="card" id="card-${a.id}" onclick="placeBet('${a.id}')">
+                    <div class="bet-badge" id="badge-${a.id}" style="display:none">0</div>
+                    <img src="${a.img}" onerror="this.src='https://via.placeholder.com/150?text=${a.name}'">
+                    <div class="card-name">${a.name}</div>
                 </div>
             `;
         });
+        load();
         updateUI();
-    }
-
-    function toggleAudio(id) {
-        const audio = document.getElementById(id);
-        const status = document.getElementById(id === 'bgMusic' ? 'bgStatus' : 'amStatus');
-        if (audio.paused) {
-            audio.play();
-            status.textContent = "ON";
-            status.style.color = "var(--green)";
-        } else {
-            audio.pause();
-            status.textContent = "OFF";
-            status.style.color = "var(--red)";
-        }
     }
 
     function placeBet(id) {
         let amt = parseInt(document.getElementById('betInput').value);
-        if (balance < amt) return alert("លុយមិនគ្រប់!");
-        balance -= amt;
-        bets[id] = (bets[id] || 0) + amt;
+        if (user.balance < amt) return pop("លុយមិនគ្រប់ទេលោកបង!", "var(--red)");
+        user.balance -= amt;
+        user.bets[id] = (user.bets[id] || 0) + amt;
         updateUI();
     }
 
-    function playGame() {
-        if (Object.keys(bets).length === 0) return alert("ចាក់សិនមេ!");
+    function setBet(v) { document.getElementById('betInput').value = v; }
+
+    function clearAllBets() {
+        for(let id in user.bets) user.balance += user.bets[id];
+        user.bets = {};
+        updateUI();
+    }
+
+    function roll() {
+        if (Object.keys(user.bets).length === 0) return alert("ចាក់សិនមេ!");
         const btn = document.getElementById('rollBtn');
         const bowl = document.getElementById('bowl');
-        const rollSnd = document.getElementById('rollSnd');
-
         btn.disabled = true;
         bowl.classList.remove('open');
-        rollSnd.play();
 
         setTimeout(() => {
             bowl.classList.add('shaking');
@@ -210,68 +214,95 @@
                     document.getElementById('d'+i).innerHTML = `<img src="${a.img}" onerror="this.parentElement.innerHTML='${a.name}'">`;
                 }
                 bowl.classList.add('open');
-                checkResult(res);
+                calc(res);
                 btn.disabled = false;
             }, 1500);
         }, 200);
     }
 
-    function checkResult(res) {
+    function calc(res) {
         let win = 0;
-        for(let id in bets) {
+        for(let id in user.bets) {
             const count = res.filter(r => r === id).length;
-            if (count > 0) win += bets[id] + (bets[id] * count);
+            if (count > 0) win += user.bets[id] + (user.bets[id] * count);
         }
 
-        const m = document.getElementById('msg');
-        m.style.display = 'block';
+        const winQuotes = ["ចាក់ទៀតអូន ចាក់ទៀត!", "ហេងណាស់មេ! កើបលុយ!", "ដៃឡើងណាស់លោកបង!", "មេយំហើយលើកនេះ!", "ចាក់អីត្រូវហ្នឹងហ្មង!"];
+        const loseQuotes = ["អញថាហើយចាកុំឲ្យចាក់!", "អស់ពីខ្លួនហើយមេអើយ!", "ទៅលាងមុខសិនទៅបង!", "មេហូបបាត់! សាកថ្មី!", "កុំអាលអស់សង្ឃឹម!"];
+
         if (win > 0) {
-            balance += win;
-            lastWin = win;
-            document.getElementById('winSnd').play();
-            m.style.background = 'var(--green)';
-            m.innerHTML = `ចាក់ទៀតអូន ចាក់ទៀត! <br> ឈ្នះ ${win.toLocaleString()}៛ <br> <button onclick="openShare()" style="background:white; border:none; padding:5px 10px; border-radius:5px; margin-top:5px; cursor:pointer;">ចែករំលែក</button>`;
+            user.balance += win;
+            user.xp += 25;
+            let q = winQuotes[Math.floor(Math.random()*winQuotes.length)];
+            pop(`${q} (+${win.toLocaleString()}៛)`, "var(--green)");
         } else {
-            m.style.background = 'var(--red)';
-            m.textContent = "អញថាហើយចាកុំឲ្យចាក់!";
+            user.xp += 5;
+            let q = loseQuotes[Math.floor(Math.random()*loseQuotes.length)];
+            pop(q, "var(--red)");
         }
-        setTimeout(() => { if(win === 0) m.style.display = 'none'; }, 3000);
-        bets = {};
+
+        if (user.xp >= user.level * 100) {
+            user.level++;
+            user.xp = 0;
+            pop("ឡើង Level " + user.level + " ហើយ!", "var(--vip)");
+        }
+
+        user.bets = {};
+        save();
         updateUI();
     }
 
+    function pop(txt, col) {
+        const p = document.getElementById('popup');
+        p.textContent = txt; p.style.background = col; p.classList.add('show');
+        setTimeout(() => p.classList.remove('show'), 2500);
+    }
+
     function updateUI() {
-        document.getElementById('balance').textContent = balance.toLocaleString();
+        document.getElementById('balance').textContent = user.balance.toLocaleString();
+        document.getElementById('lvl').textContent = "Level " + user.level;
+        document.getElementById('vip').textContent = user.level > 10 ? "VIP GOLD" : "Member";
+        
         animals.forEach(a => {
-            const b = document.getElementById('b-'+a.id);
-            if (bets[a.id]) {
-                b.style.display = 'block';
-                b.textContent = bets[a.id].toLocaleString();
-            } else { b.style.display = 'none'; }
+            const badge = document.getElementById('badge-'+a.id);
+            const card = document.getElementById('card-'+a.id);
+            if (user.bets[a.id]) {
+                badge.style.display = 'block';
+                badge.textContent = user.bets[a.id] >= 1000 ? (user.bets[a.id]/1000)+'K' : user.bets[a.id];
+                card.classList.add('selected');
+            } else {
+                badge.style.display = 'none';
+                card.classList.remove('selected');
+            }
         });
     }
 
-    // Share Logic
-    function openShare() {
-        document.getElementById('msg').style.display = 'none';
-        document.getElementById('share-title').textContent = "ខ្ញុំទើបតែឈ្នះ!";
-        document.getElementById('share-amount').textContent = lastWin.toLocaleString() + " ៛";
-        document.getElementById('share-box').classList.add('active');
+    function claimDaily() {
+        const today = new Date().toDateString();
+        if (user.lastDaily === today) return pop("ចាំស្អែកមកទៀត!", "var(--red)");
+        let gift = 5000 + (user.level * 1000);
+        user.balance += gift;
+        user.lastDaily = today;
+        pop("បានកាដូ " + gift.toLocaleString() + "៛", "var(--green)");
+        save(); updateUI();
+    }
+
+    function showLB() {
+        const lb = document.getElementById('lb-content');
+        lb.innerHTML = `<div style="display:flex; justify-content:space-between; margin-top:10px;"><span>1. អ្នក (YOU)</span> <span style="color:var(--gold)">${user.balance.toLocaleString()}៛</span></div>`;
+        document.getElementById('leaderboard').style.display = 'block';
         document.getElementById('overlay').style.display = 'block';
     }
 
-    function closeShare() {
-        document.getElementById('share-box').classList.remove('active');
+    function closeLB() {
+        document.getElementById('leaderboard').style.display = 'none';
         document.getElementById('overlay').style.display = 'none';
     }
 
-    function shareSocial(platform) {
-        const text = `ខ្ញុំទើបតែឈ្នះលុយ ${lastWin.toLocaleString()}៛ ក្នុងហ្គេមខ្លាស៊ីគោ IT ZONE! សាកល្បងសំណាងទាំងអស់គ្នា!`;
-        const url = window.location.href;
-        let link = "";
-        if (platform === 'fb') link = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`;
-        if (platform === 'tg') link = `https://t.me/share/url?url=${url}&text=${text}`;
-        window.open(link, '_blank');
+    function save() { localStorage.setItem('ksData', JSON.stringify(user)); }
+    function load() {
+        const d = localStorage.getItem('ksData');
+        if (d) user = JSON.parse(d);
     }
 
     init();
